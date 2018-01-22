@@ -151,11 +151,11 @@ def main():
 	joined_freq_counter = dict()
 	for term in entire_word_set:
 		joined_freq_counter[str(term)] = { 'freq_below_cutoff': 0, 
-										   'freq_above_cutoff': 0, 
-										   'ratio_above_vs_below': 0,
-										   'count_below_cutoff': 0,
-										   'count_above_cutoff': 0,
-										   'diff_above_vs_below': 0}
+					           'freq_above_cutoff': 0, 
+						   'ratio_above_vs_below': 0,
+						   'count_below_cutoff': 0,
+						   'count_above_cutoff': 0,
+						   'diff_above_vs_below': 0}
 
 	for term, val in below_freq.items():
 		joined_freq_counter[term]['count_below_cutoff'] = val
