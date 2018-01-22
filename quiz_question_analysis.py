@@ -3,8 +3,8 @@ import re
 from pprint import pprint
 from collections import OrderedDict
 
-stop_words_set = set(open('stop_words_short.txt').read().replace('\n', ' ').replace('\r', '').split())
-# stop_words_set = set(open('stop_words_nltk.txt').read().replace('\n', ' ').replace('\r', '').split())
+# stop_words_set = set(open('stop_words_short.txt').read().replace('\n', ' ').replace('\r', '').split())
+stop_words_set = set(open('stop_words_nltk.txt').read().replace('\n', ' ').replace('\r', '').split())
 cutoff_percentage = 0.5
 
 ##################################################################
@@ -12,6 +12,7 @@ cutoff_percentage = 0.5
 ##################################################################
 
 def extract_N_grams(N_num, list_of_terms):
+	# returning as a generator to save space
 	return (tuple(list_of_terms[i:i+N_num]) for i in range(len(list_of_terms)-N_num))
 
 def extract_words_and_lowercase(a_string):
@@ -85,8 +86,7 @@ def get_word_frequency_across_questions(entire_questions_list, set_of_words_to_c
 ###############################################
 
 def reduce_word_sets_to_one(list_of_questions):
-	# not very reusable since it requires a specific data structure pertaining to this problem
-	# list_of_questions is a list of dicts, as such: [{'words': {this is a set}}, {'words': {this is another set}}, ...]
+	# list_of_questions is a list of dicts, as such: [{'terms': {this is a set}}, {'terms': {this is another set}}, ...]
 
 	unique_words = set()
 	for entry in list_of_questions:
@@ -96,16 +96,20 @@ def reduce_word_sets_to_one(list_of_questions):
 def get_words_unique_to_set(set_of_words1, set_of_words2):
 	return set_of_words1.difference(set_of_words2)
 
+############
+### Main ###
+############
+
 def main():
 	separation = separate_questions('quiz_questions.json', cutoff_percentage)
-	# separation = separate_questions('abridged_qs.json', cutoff_percentage)
+	# separation = separate_questions('abridged_qs.json', cutoff_percentage) --- For testing purposes
 
-	below_word_set = reduce_word_sets_to_one(separation['qs_below_cutoff']) # can we make either of these better?
-	above_word_set = reduce_word_sets_to_one(separation['qs_above_cutoff']) # since we don't used them again
+	below_word_set = reduce_word_sets_to_one(separation['qs_below_cutoff'])
+	above_word_set = reduce_word_sets_to_one(separation['qs_above_cutoff'])
 	entire_word_set = below_word_set.union(above_word_set)
 
 	below_freq = get_word_frequency_across_questions(separation['qs_below_cutoff'], entire_word_set) # returns a dict
-	above_freq = get_word_frequency_across_questions(separation['qs_above_cutoff'], entire_word_set) # returns a dict
+	above_freq = get_word_frequency_across_questions(separation['qs_above_cutoff'], entire_word_set)
 
 	joined_freq_counter = dict()
 	for term in entire_word_set:
@@ -130,6 +134,7 @@ def main():
 	ordered_joined_freq_counter = OrderedDict()
 
 	for term, data in sorted(joined_freq_counter.items(), key = lambda kv: kv[1]['freq_below_cutoff'], reverse = True):
+		# not much value in words that don't show up at all in one or more sets
 		if data['freq_below_cutoff'] > 0 and data['freq_above_cutoff'] > 0:
 			ordered_joined_freq_counter[term] = data
 
@@ -137,4 +142,7 @@ def main():
 	output_file.write(json.dumps(ordered_joined_freq_counter, indent=4))
 	output_file.close()
 
+
+
 main()
+
