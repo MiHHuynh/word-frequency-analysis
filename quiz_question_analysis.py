@@ -103,7 +103,6 @@ def get_words_unique_to_set(set_of_words1, set_of_words2):
 
 def main():
 	separation = separate_questions('quiz_questions.json', cutoff_percentage)
-	# separation = separate_questions('abridged_qs.json', cutoff_percentage) --- For testing purposes
 
 	below_word_set = reduce_word_sets_to_one(separation['qs_below_cutoff'])
 	above_word_set = reduce_word_sets_to_one(separation['qs_above_cutoff'])

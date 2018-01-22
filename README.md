@@ -61,7 +61,7 @@ Files must be in this structure:
 Run from your terminal:
 
 ```
-python3 quiz_questions_analysis.py
+python3 quiz_question_analysis.py
 ```
 
 There will be an approximately 1 minute (more on this later, under the discussion of time complexity and drawbacks) before your terminal is free again. The program will not output anything to the console. Rather, it will write to three different files:
