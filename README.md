@@ -39,7 +39,7 @@ Clone and `cd` into the directory via the terminal.
 
 ```
 git clone https://github.com/MiHHuynh/word-frequency-analysis.git
-cd Quiz_Questions_Analysis
+cd word-frequency-analysis
 ```
 
 Files must be in this structure:
