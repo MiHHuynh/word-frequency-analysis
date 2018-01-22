@@ -18,8 +18,8 @@ Consider how many appearances of a word there needs to be in order to say someth
 
 The only dependences that this solution has are:
 
-* the assumption that you are running Python 3 and
-* that the original `.json` file is formatted as such:
+* Python 3
+* the original `.json` file being formatted as such:
 
 ```
 [
@@ -31,7 +31,7 @@ The only dependences that this solution has are:
 ]
 ```
 
-* a list of stop words. `stop_words_nltk.txt` was sourced from [a Gist for English stopwords from NLTK](https://gist.github.com/sebleier/554280). It has been manually edited by me to be less restrictive. `stop_words.txt` was sourced from [Rank.nl's English stop words list](https://www.ranks.nl/stopwords). I've included both for posterity, but the solution uses my edited version of `stop_words_nltk.txt`.
+* a list of stop words. `stop_words_nltk.txt` was sourced from [a Gist for English stopwords from NLTK](https://gist.github.com/sebleier/554280). It has been manually edited by me to be less restrictive. `stop_words.txt` was sourced from [Rank.nl's English stop words list](https://www.ranks.nl/stopwords). I've included both for reference. The solution uses my own edited list of stop words, manually picked after running the program to get some results. It is named `stop_words_short.txt`.
 
 ### Installing
 
@@ -60,7 +60,66 @@ Run from your terminal:
 python3 quiz_questions_analysis.py
 ```
 
-**End with an example of output data**
+There will be an approximately 55 second stall (more on this later, under the discussion of time complexity and drawbacks) before your terminal is free again. The program will not output anything to the console. Rather, it will write to a file named `results.txt` which should exist in the same directory.
+
+A sampling of the data written to the file:
+
+```
+{
+    "article": {
+        "freq_below_cutoff": 0.011038565113561303,
+        "freq_above_cutoff": 0.009921660700937503,
+        "ratio_above_vs_below": 0.8988179712550103,
+        "count_below_cutoff": 1738,
+        "count_above_cutoff": 3013
+    },
+    "which": {
+        "freq_below_cutoff": 0.006344951984147147,
+        "freq_above_cutoff": 0.00604915058334623,
+        "ratio_above_vs_below": 0.9533800410877851,
+        "count_below_cutoff": 999,
+        "count_above_cutoff": 1837
+    },
+    "select": {
+        "freq_below_cutoff": 0.0061544128855241095,
+        "freq_above_cutoff": 0.0049163755149351784,
+        "ratio_above_vs_below": 0.7988374531223055,
+        "count_below_cutoff": 969,
+        "count_above_cutoff": 1493
+    },
+    "following": {
+        "freq_below_cutoff": 0.0055954981962298665,
+        "freq_above_cutoff": 0.005746199111561879,
+        "ratio_above_vs_below": 1.0269325286233766,
+        "count_below_cutoff": 881,
+        "count_above_cutoff": 1745
+    },
+    "paragraph": {
+        "freq_below_cutoff": 0.005220771302271226,
+        "freq_above_cutoff": 0.003520164384102951,
+        "ratio_above_vs_below": 0.674261364900537,
+        "count_below_cutoff": 822,
+        "count_above_cutoff": 1069
+    },
+    "sentence": {
+        "freq_below_cutoff": 0.0046809105228392866,
+        "freq_above_cutoff": 0.0053115296085669405,
+        "ratio_above_vs_below": 1.1347214570008788,
+        "count_below_cutoff": 737,
+        "count_above_cutoff": 1613
+    },
+    "what": {
+        "freq_below_cutoff": 0.0044078044814796,
+        "freq_above_cutoff": 0.006447597627758258,
+        "ratio_above_vs_below": 1.462768517716545,
+        "count_below_cutoff": 694,
+        "count_above_cutoff": 1958
+    },
+    ...
+}
+
+```
+The rest of the results can be viewed from the `results.txt` file.
 
 ## Solution
 
@@ -92,9 +151,31 @@ Here, I had to think about n-grams: words that frequently occur in a sequence of
 
 * Determining importance of a word or phrase (TF-IDF)
 * Are there other subtle things that can be valuable for the analysis but will be lost through the processing, such as the length of questions?
-* Time Complexity?
+
+### Time Complexity?
+
+Where is the bottleneck? Technical debt? remove infinites, remove stop words, remove html words, remove stuff that aren't significant
+
+O(n*m) to get all words, with n being average length of a single question and m being the number of questions
+
+O((n-K) * m) to get all n-grams, where n is average length of single question, K is n in n-grams, and m is number of questions
+
+many more linear operations to go through, build up frequency counter
+
+O(nlogn) to sort the ordered dict
+
 
 ## Analysis
+
+I tried several approaches in an attempt to find the best way to display data for gathering insight.
+
+words that only appear in one set vs. another
+
+number of counts in one set compared to in the other set
+
+% frequency of the words (so number of occurrences of particular word divided by total number of words for that set) comparison
+
+
 
 ## Running the tests
 
