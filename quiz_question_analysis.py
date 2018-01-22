@@ -2,6 +2,7 @@ import json
 import re
 from pprint import pprint
 from collections import OrderedDict
+import math
 
 # stop_words_set = set(open('stop_words_short.txt').read().replace('\n', ' ').replace('\r', '').split())
 stop_words_set = set(open('stop_words_nltk.txt').read().replace('\n', ' ').replace('\r', '').split())
@@ -117,7 +118,8 @@ def main():
 										   'freq_above_cutoff': 0, 
 										   'ratio_above_vs_below': 0,
 										   'count_below_cutoff': 0,
-										   'count_above_cutoff': 0}
+										   'count_above_cutoff': 0,
+										   'diff_above_vs_below': 0}
 
 	for term, val in below_freq.items():
 		joined_freq_counter[term]['count_below_cutoff'] = val
@@ -126,6 +128,7 @@ def main():
 	for term, val in above_freq.items():
 		joined_freq_counter[term]['count_above_cutoff'] = val
 		joined_freq_counter[term]['freq_above_cutoff'] = float(val / separation['total_terms_above_cutoff'])
+		joined_freq_counter[term]['diff_above_vs_below'] = math.fabs(joined_freq_counter[term]['freq_above_cutoff'] - joined_freq_counter[term]['freq_below_cutoff'])
 		if joined_freq_counter[term]['freq_below_cutoff'] == 0:
 			continue
 		else:
@@ -133,15 +136,36 @@ def main():
 
 	ordered_joined_freq_counter = OrderedDict()
 
+	for term, data in sorted(joined_freq_counter.items(), key = lambda kv: kv[1]['diff_above_vs_below'], reverse = True):
+		# not much value in words that don't show up at all in one or more sets
+		if data['freq_below_cutoff'] > 0 and data['freq_above_cutoff'] > 0:
+			ordered_joined_freq_counter[term] = data
+
+	output_file = open('results_sorted_by_diff_desc.txt', 'w')
+	output_file.write(json.dumps(ordered_joined_freq_counter, indent=4))
+	output_file.close()
+
+
+	ordered_joined_freq_counter = OrderedDict()
 	for term, data in sorted(joined_freq_counter.items(), key = lambda kv: kv[1]['freq_below_cutoff'], reverse = True):
 		# not much value in words that don't show up at all in one or more sets
 		if data['freq_below_cutoff'] > 0 and data['freq_above_cutoff'] > 0:
 			ordered_joined_freq_counter[term] = data
 
-	output_file = open('results.txt', 'w')
+	output_file = open('results_sorted_by_freq_below_desc.txt', 'w')
 	output_file.write(json.dumps(ordered_joined_freq_counter, indent=4))
 	output_file.close()
 
+
+	ordered_joined_freq_counter = OrderedDict()
+	for term, data in sorted(joined_freq_counter.items(), key = lambda kv: kv[1]['freq_above_cutoff'], reverse = True):
+		# not much value in words that don't show up at all in one or more sets
+		if data['freq_below_cutoff'] > 0 and data['freq_above_cutoff'] > 0:
+			ordered_joined_freq_counter[term] = data
+
+	output_file = open('results_sorted_by_freq_above_desc.txt', 'w')
+	output_file.write(json.dumps(ordered_joined_freq_counter, indent=4))
+	output_file.close()
 
 
 main()
