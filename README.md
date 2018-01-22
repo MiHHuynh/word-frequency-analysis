@@ -31,7 +31,7 @@ The only dependences that this solution has are:
 ]
 ```
 
-* a list of stop words. `stop_words_nltk.txt` was sourced from [a Gist for English stopwords from NLTK](https://gist.github.com/sebleier/554280). It has been manually edited by me to be less restrictive. `stop_words.txt` was sourced from [Rank.nl's English stop words list](https://www.ranks.nl/stopwords). I've included both for reference. The solution uses my own edited list of stop words, manually picked after running the program to get some results. It is named `stop_words_short.txt`.
+* a list of stop words. `stop_words_nltk.txt` was sourced from [a Gist for English stopwords from NLTK](https://gist.github.com/sebleier/554280). It has been manually edited by me to be less restrictive. `stop_words.txt` was sourced from [Rank.nl's English stop words list](https://www.ranks.nl/stopwords). I've included both for reference. The solution uses the NLTK list of stop words. There is another file named `stop_words_short.txt` containing manually picked words that I experimented with as well.
 
 ### Installing
 
@@ -49,9 +49,13 @@ Files must be in this structure:
 ├── README.md
 ├── quiz_question_analysis.py
 ├── quiz_questions.json
-├── results.txt
+├── requirements.txt
+├── results_sorted_by_diff_desc.txt
+├── results_sorted_by_freq_above_desc.txt
+├── results_sorted_by_freq_below_desc.txt
 ├── stop_words.txt
-└── stop_words_nltk.txt
+├── stop_words_nltk.txt
+└── stop_words_short.txt
 ```
 
 Run from your terminal:
@@ -180,9 +184,7 @@ There will be an approximately 1 minute (more on this later, under the discussio
 
 The rest of the results can be viewed from the files.
 
-## Solution
-
-### Approach
+## Approach
 
 In order to comment on particular words or phrases that showed up more in certain questions, I needed to compare the frequency of specific terms in questions below and above the cutoff percentage (designated at 50%).
 
@@ -218,57 +220,86 @@ Here, I had to think about n-grams: words that frequently occur in a sequence of
 
 Are there other subtle things that can be valuable for the analysis but will be lost through the processing, such as the length of questions?
 
-## Analysis
-Some words that showed up more frequently in questions below the cutoff compared to above are:
+## Solution and Analysis
+Some words that showed up more frequently in questions below the cutoff compared to above are (listed by greatest to least difference, or in other words, much more frequent in below cutoff than in above):
 
-* "article"
-* "which"
-* "select"
-* "paragraph"
-* "best"
-* "not"
-* "except"
-* "section"
-* "idea"
-* "shows"
-* "describes"
-* "author"
-* "contains"
-* "sentences"
-* "important"
-* "summary"
-* "evidence"
-* "supports"
-* "explains"
-* "provides"
-* "least"
-* "pro"
-* "information"
-* "help"
-* "phrase"
-* "could"
-* "reasons"
-* "use"
-* "antonym"
+* paragraph
+* select
+* best
+* article
+* evidence
+* author
+* section
+* not
+* provides
+* idea
+* con
+* pro
+* describes
+* supports / support
+* except
+* which
+* claim
+* explains
+* text
+* central
+* shows
+* connection
+* least
+* argument
+* draws
+* point
+* paragraphs
 
+Words that showed up more frequently in questions above the cutoff are:
 
-## Time and Space Complexity
+* what
+* word
+* according
+* why
+* sentence
+* meaning
+* read
+* used
+* synonym
+* how
+* true
+* who
+* many
+* people
+* following
+* students
+* found
+* reason
+* reading
+* year
+* discusses
 
-O(n*m) to get all words, with n being average length of a single question and m being the number of questions
+### Conclusion
 
-O((n-K) * m) to get all n-grams, where n is average length of single question, K is n in n-grams, and m is number of questions
+With the inclusion of n-grams, I was easily able to look up the context of each of these words as well, to find out what kinds of questions these words typically appear in. All of the words in questions below the cutoff tend to show up in questions that are more open-ended, ones that require some critical thinking and that may not have a very clear answer. Asking a student the "pros and cons" of something can be highly subjective, for example. Also, words like "best," "least," and "not" also add a layer of complexity to questions; one is not being asked to find just a single answer, but the BEST answer, or the LEAST supported argument, or to use deduction to find an answer not like the others. This list also has "paragraph(s)," "article," and "text," indicating that there may be some kind of reading material attached to the question as well. Questions like that require the student to not only read and understand a passage, but to apply critical thinking immediately, and coupleld with more abstract questions, may affect performance while under pressure.
 
-many more linear operations to go through, build up frequency counter
+Words that showed up for frequently in questions above the cutoff are more concrete, straightforward, and commanding of a single, clear answer (e.g. "what," "why," "how"). There are fewer verbs in this list than the previous, implying less further thinking and requiring of deduction (asking someone to "describe" something vs. asking someone for "what"). More straightfoward questions lead to less confused answers, which may be why questions containing these words tend to be above the cutoff.
 
-O(nlogn) to sort the ordered dict
+## Drawbacks
+
+#### Time and Space Complexity
+
+At the moment, my solution is running very slowly. There are multiple operations that are running at O(n*m) time to get all the words, with n being average number of words in a single question and m being the number of questions. Generation of n-grams is another costly linear operation and multiplies the amount of space needed as it increases the corpus size.
+
+With two questions of ten unique words each, the corpus size is 37 unique terms (including 2- and 3-grams). Three questions of ten unique words each makes the corpus size 111 unique terms. The size can increase very quickly, causing runtime to get much, much slower.
+
+I was surprised, however, to see that none of the n-grams showed up frequently in either set, and I almost considered removing them to save on time complexity. However, they do add value in providing context for questions, so I left them in. Removing them can decrease the corpus size.
+
+There is sorting involved before writing to the files as well, which, with large data sets, can get expensive.
 
 ## What's Next
 
 For future exploration, I'd like to take into consideration the actual length of questions, as perhaps longer questions are more convoluted or lose the reader's focus. Longer questions also tend to have passages, which add complexity to the question asked. Alongside that, I would like to generate comparisons for multiple cutoffs to see if there are more obvious patterns across more restrictive cutoff percentages (90% failing vs 10% passing, for example).
 
-I'd also like to implement a better ranking/scoring system exploring TF-IDF that will judge and pull out terms for me.
+I'd also like to implement a better ranking/scoring system exploring TF-IDF that will judge and pull out terms for me, along with categorizing them with their part of speech to see if those are also significant factors.
 
-For the technical side, improving time and space complexity and code flexibility and adding unit tests would be high in priority for the next step. As of now, the code is slow, very rigid and has some hardcoded values (such as file names and the cutoff percentage). It does not have proper tests either.
+For the technical side, improving time and space complexity and code flexibility and adding unit tests would be high in priority for the next step. As of now, the code is slow, very rigid and has some hardcoded values (such as file names and the cutoff percentage).
 
 ## Built With
 
