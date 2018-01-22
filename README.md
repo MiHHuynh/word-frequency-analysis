@@ -216,7 +216,7 @@ Are there other subtle things that can be valuable for the analysis but will be 
 With those in mind, here is what I wanted to do:
 
 * Gather significant terms for *each* question (remove "meaningless" words, or words that don't hold much value, such as "a," "the," "I," etc., also known as stopwords.
-* Gather N-grams, or batches of N words that occur frequently together (e.g. "red wine," "White House," etc.) for *each question*. I gathered 2-grams and 3-grams, as generating and adding these to the overall list of terms makes further processing costly in time complexity, and there is not much value in n-grams containing more than 3 terms (they become more specific and restrictive).
+* Gather N-grams, or batches of N words that occur frequently together (e.g. "red wine," "White House," etc.) for *each question*. I gathered 2-grams and 3-grams programmatically, as generating and adding these to the overall list of terms makes further processing costly in time complexity, and there is not much value in n-grams containing more than 3 terms (they become more specific and restrictive).
 * Consolidate all of the significant terms across all questions in that percentile.
 * Create a dict initialized to zero for each one (to be used later to count) of significant terms and phrases for failing questions, and another for passing questions.
 * Tally up all terms for each percentile.
