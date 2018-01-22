@@ -13,18 +13,33 @@ cutoff_percentage = 0.5
 ##################################################################
 
 def extract_N_grams(N_num, list_of_terms):
-	# returning as a generator to save space
+	'''
+	Input: This takes a number, N_num, which determines how many N-grams you want to generate, and a list of terms.
+	Output: Returns a generator for a list of n-grams represented as tuples. "red wine" --> ("red", "wine")
+	Info: A 2-gram is a phrase of 2 words that frequently go together. 3-gram is a phrase of 3 words, etc.
+	'''
 	return (tuple(list_of_terms[i:i+N_num]) for i in range(len(list_of_terms)-N_num))
 
 def extract_words_and_lowercase(a_string):
-	# removes punctuation, \r, \n, white space and returns a list
+	'''
+	Input: a string
+	Output: list of terms, retaining original order in the sentence, with removal of punctuation, \r, \n, and white space
+	'''
 	return [elem.lower() for elem in re.split('\W+', a_string) if elem]
 
 def remove_stop_words(list_of_words):
-	# removes stop words and returns a list
+	'''
+	Input: a list of strings
+	Output: returns a list of words minus stop words as indicated in the stop_words_set; relies on set from outside of function
+	'''
 	return [word for word in list_of_words if word not in stop_words_set]
 
 def create_dict_of_significant_terms(a_string):
+	'''
+	Input: a string	
+	Output: a dict containing a set of unique terms, including 2-grams and 3-grams
+	and excluding stop words, and the number of terms
+	'''
 	terms = extract_words_and_lowercase(a_string)
 
 	two_grams = extract_N_grams(2, terms)
@@ -43,6 +58,18 @@ def create_dict_of_significant_terms(a_string):
 ################################################################################
 
 def separate_questions(json_file_name, cutoff_percentage):
+	'''
+	Input: json file containing questions, formatted as [{"text": ..., "percent_correct": X }, ...],
+	and a cutoff percentage given as a float (e.g. 0.4, 0.5)
+
+	What this does: separate_questions opens the file and reads from it, goes through every question
+	in the file and converts it into a set of terms and pushes it to a list depending on whether it is
+	above or below the cutoff. It also counts the total number of terms for each half (above the cutoff
+	and below the cutoff).
+	
+	Output: Returns a dict containing all the questions below and above the cutoff, represented as sets of
+	terms, and the total number of terms for each category as well.
+	'''
 	with open(json_file_name) as json_file:
 		quiz_questions = json.loads(json_file.read())
 
@@ -69,7 +96,13 @@ def separate_questions(json_file_name, cutoff_percentage):
 			'total_terms_above_cutoff': total_terms_above_cutoff}
 
 def get_word_frequency_across_questions(entire_questions_list, set_of_words_to_check_with):
-	# get frequency of each word across all questions
+	'''
+	Input: a list of questions that have already been processed into term sets, formatted
+	as [{'terms': result, 'terms_count': X }, {'terms': result, 'terms_count': Y }, ...], and
+	a set of other words to check against
+
+	Output: A dict counter containing information on the term and how many occurrences it has
+	'''
 
 	word_freq_counter = {}
 
@@ -87,14 +120,18 @@ def get_word_frequency_across_questions(entire_questions_list, set_of_words_to_c
 ###############################################
 
 def reduce_word_sets_to_one(list_of_questions):
-	# list_of_questions is a list of dicts, as such: [{'terms': {this is a set}}, {'terms': {this is another set}}, ...]
-
+	'''
+	This takes a list of questions, formatted as term sets a reduced, single set of terms
+	'''
 	unique_words = set()
 	for entry in list_of_questions:
 		unique_words = unique_words.union(entry['terms'])
 	return unique_words
 
 def get_words_unique_to_set(set_of_words1, set_of_words2):
+	'''
+	Gets the difference between two sets of terms.
+	'''
 	return set_of_words1.difference(set_of_words2)
 
 ############
@@ -140,7 +177,7 @@ def main():
 		if data['freq_below_cutoff'] > 0 and data['freq_above_cutoff'] > 0:
 			ordered_joined_freq_counter[term] = data
 
-	output_file = open('results_sorted_by_diff_desc.txt', 'w')
+	output_file = open('results_sorted_by_diff_desc.json', 'w')
 	output_file.write(json.dumps(ordered_joined_freq_counter, indent=4))
 	output_file.close()
 
@@ -151,7 +188,7 @@ def main():
 		if data['freq_below_cutoff'] > 0 and data['freq_above_cutoff'] > 0:
 			ordered_joined_freq_counter[term] = data
 
-	output_file = open('results_sorted_by_freq_below_desc.txt', 'w')
+	output_file = open('results_sorted_by_freq_below_desc.json', 'w')
 	output_file.write(json.dumps(ordered_joined_freq_counter, indent=4))
 	output_file.close()
 
@@ -162,10 +199,11 @@ def main():
 		if data['freq_below_cutoff'] > 0 and data['freq_above_cutoff'] > 0:
 			ordered_joined_freq_counter[term] = data
 
-	output_file = open('results_sorted_by_freq_above_desc.txt', 'w')
+	output_file = open('results_sorted_by_freq_above_desc.json', 'w')
 	output_file.write(json.dumps(ordered_joined_freq_counter, indent=4))
 	output_file.close()
 
 
-main()
+if __name__ == '__main__':
+	main()
 

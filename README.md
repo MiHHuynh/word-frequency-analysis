@@ -50,9 +50,9 @@ Files must be in this structure:
 ├── quiz_question_analysis.py
 ├── quiz_questions.json
 ├── requirements.txt
-├── results_sorted_by_diff_desc.txt
-├── results_sorted_by_freq_above_desc.txt
-├── results_sorted_by_freq_below_desc.txt
+├── results_sorted_by_diff_desc.json
+├── results_sorted_by_freq_above_desc.json
+├── results_sorted_by_freq_below_desc.json
 ├── stop_words.txt
 ├── stop_words_nltk.txt
 └── stop_words_short.txt
@@ -64,9 +64,11 @@ Run from your terminal:
 python3 quiz_question_analysis.py
 ```
 
-There will be an approximately 1 minute (more on this later, under the discussion of time complexity and drawbacks) before your terminal is free again. The program will not output anything to the console. Rather, it will write to three different files:
+On my MacBook Air (13-inch, Early 2014), there was a delay of approximately 1 minute before the terminal was free again (more on this later, under the discussion of time complexity and drawbacks). This may be faster or slower depending on your machine.
 
-* `results_sorted_by_diff_desc.txt` Results, a list of words, listed by the difference in frequencies from greatest difference to smallest difference
+The program **will not** output anything to the console. Rather, it will write to three different files:
+
+* `results_sorted_by_diff_desc.json` Results, a list of words, listed by the difference in frequencies from greatest difference to smallest difference
 
 ```
 {
@@ -104,7 +106,7 @@ There will be an approximately 1 minute (more on this later, under the discussio
     },
     ...
 ```
-* `results_sorted_by_freq_above_desc.txt` Results listing words that are most to least frequent in questions ABOVE cutoff
+* `results_sorted_by_freq_above_desc.json` Results listing words that are most to least frequent in questions ABOVE cutoff
 
 ```
 {
@@ -143,7 +145,7 @@ There will be an approximately 1 minute (more on this later, under the discussio
     ...
 ```
 
-* `results_sorted_by_freq_below_desc.txt` Results listing words that are most to least frequent in questions BELOW cutoff
+* `results_sorted_by_freq_below_desc.json` Results listing words that are most to least frequent in questions BELOW cutoff
 
 ```
 {
@@ -191,7 +193,7 @@ In order to comment on particular words or phrases that showed up more in certai
 What I wanted to do:
 
 * Gather significant terms for *each* question (remove "meaningless" words, or words that don't hold much value, such as "a," "the," "I," etc., also known as stopwords.
-* Gather N-grams, or batches of N words that occur frequently together, for *each question*. I gathered 2-grams and 3-grams, as generating and adding these to the overall list of terms is costly in time complexity.
+* Gather N-grams, or batches of N words that occur frequently together (e.g. "red wine," "White House," ", for *each question*. I gathered 2-grams and 3-grams, as generating and adding these to the overall list of terms is costly in time complexity.
 * Consolidate all of the significant terms across all questions in that percentile.
 * Create a dict initialized to zero for each one (to be used later to count) of significant terms and phrases for failing questions, and another for passing questions.
 * Tally up all terms for each percentile.
